@@ -208,6 +208,7 @@ jobs:
           output: trivy-api.sarif
           exit-code: "1"
           severity: CRITICAL
+          version: v0.70.0
           trivy-config: trivy.yaml
 
       - name: Scan Worker image
@@ -218,6 +219,7 @@ jobs:
           output: trivy-worker.sarif
           exit-code: "1"
           severity: CRITICAL
+          version: v0.70.0
           trivy-config: trivy.yaml
 
       - name: Scan Frontend image
@@ -228,6 +230,7 @@ jobs:
           output: trivy-frontend.sarif
           exit-code: "1"
           severity: CRITICAL
+          version: v0.70.0
           trivy-config: trivy.yaml
 
       - name: Upload Trivy SARIF results
