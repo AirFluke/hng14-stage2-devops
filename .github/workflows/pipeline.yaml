@@ -27,8 +27,9 @@ jobs:
         run: pip install flake8
 
       - name: Lint Python — api
-        run: flake8 api/ --max-line-length=120 --exclude=__pycache__
-
+        run: |
+          autopep8 --in-place --recursive api/
+          flake8 api/ --max-line-length=120 --exclude=__pycache__
       - name: Lint Python — worker
         run: flake8 worker/ --max-line-length=120 --exclude=__pycache__
 
