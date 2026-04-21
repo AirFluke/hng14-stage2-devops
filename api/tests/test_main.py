@@ -87,3 +87,4 @@ def test_get_job_completed_status(client, mock_redis):
     data = response.json()
     assert data["status"] == "completed"
     assert data["job_id"] == "done-job-456"
+    
