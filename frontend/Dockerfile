@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ─── Stage 1: builder ────────────────────────────────────────────────────────
-FROM node:18-slim AS builder
+FROM node:18-alpine AS builder
 
 WORKDIR /build
 
@@ -13,7 +13,7 @@ RUN npm ci --omit=dev
 
 
 # ─── Stage 2: final ──────────────────────────────────────────────────────────
-FROM node:18-slim
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ COPY app.js .
 COPY views/ ./views/
 
 # Create non-root user and hand over ownership
-RUN adduser --disabled-password --gecos "" --uid 1001 appuser \
+RUN adduser -D -u 1001 appuser \
     && chown -R appuser:appuser /app
 
 USER appuser

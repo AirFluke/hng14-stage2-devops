@@ -48,7 +48,7 @@ jobs:
       - name: Lint JavaScript — frontend
         working-directory: frontend
         run: npx eslint@8 app.js --env node --env es2021 --parser-options=ecmaVersion:12
-        
+
       - name: Install hadolint
         run: |
           curl -sL -o /usr/local/bin/hadolint \
@@ -208,6 +208,7 @@ jobs:
           output: trivy-api.sarif
           exit-code: "1"
           severity: CRITICAL
+          trivy-flags: --skip-version-check
 
       - name: Scan Worker image
         uses: aquasecurity/trivy-action@master

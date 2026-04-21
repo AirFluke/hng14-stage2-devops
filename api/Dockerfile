@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ─── Stage 1: builder ────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+FROM python:3.11-alpine AS builder
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir "pip==24.0" \
     && pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ─── Stage 2: final ──────────────────────────────────────────────────────────
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 WORKDIR /app
 
@@ -22,9 +22,9 @@ COPY --from=builder /install /usr/local
 COPY main.py .
 
 # Create non-root user and hand over ownership
-RUN adduser --disabled-password --gecos "" --uid 1001 appuser \
+RUN adduser -D -u 1001 appuser \
     && chown -R appuser:appuser /app
-
+    
 USER appuser
 
 EXPOSE 8000
