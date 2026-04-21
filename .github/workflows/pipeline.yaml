@@ -230,7 +230,7 @@ jobs:
             --scanners vuln \
             --skip-version-check \
             localhost:5000/frontend:${{ github.sha }}
-            
+
       - name: Upload Trivy SARIF results
         uses: actions/upload-artifact@v4
         if: always()
@@ -306,6 +306,10 @@ jobs:
           echo "Job did not complete in time."
           docker compose logs
           exit 1
+
+      - name: Show all logs on failure
+        if: failure()
+        run: docker compose logs
 
       - name: Tear down stack
         if: always()
