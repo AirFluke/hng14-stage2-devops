@@ -7,7 +7,7 @@ WORKDIR /build
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip \
+RUN pip install --no-cache-dir "pip==24.0" \
     && pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ─── Stage 2: final ──────────────────────────────────────────────────────────
