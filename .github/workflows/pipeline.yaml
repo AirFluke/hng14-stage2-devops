@@ -208,7 +208,7 @@ jobs:
           output: trivy-api.sarif
           exit-code: "1"
           severity: CRITICAL
-          trivy-flags: --skip-version-check
+          trivy-config: trivy.yaml
 
       - name: Scan Worker image
         uses: aquasecurity/trivy-action@master
@@ -218,6 +218,7 @@ jobs:
           output: trivy-worker.sarif
           exit-code: "1"
           severity: CRITICAL
+          trivy-config: trivy.yaml
 
       - name: Scan Frontend image
         uses: aquasecurity/trivy-action@master
@@ -227,6 +228,7 @@ jobs:
           output: trivy-frontend.sarif
           exit-code: "1"
           severity: CRITICAL
+          trivy-config: trivy.yaml
 
       - name: Upload Trivy SARIF results
         uses: actions/upload-artifact@v4

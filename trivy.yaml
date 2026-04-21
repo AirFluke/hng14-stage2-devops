@@ -1,0 +1,2 @@
+# trivy.yaml
+skip-version-check: true
