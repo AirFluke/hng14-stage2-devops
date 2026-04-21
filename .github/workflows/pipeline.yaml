@@ -329,7 +329,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check deploy secrets are configured
+        id: check_secrets
+        run: |
+          if [ -z "${{ secrets.DEPLOY_HOST }}" ]; then
+            echo "DEPLOY_HOST secret not set — skipping deploy"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy via rolling update
+        if: steps.check_secrets.outputs.skip == 'false'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -338,29 +349,18 @@ jobs:
           port: ${{ secrets.DEPLOY_PORT }}
           script: |
             set -e
-
             cd ${{ secrets.DEPLOY_PATH }}
-
             echo "Pulling latest code..."
             git pull origin main
-
             echo "Building new images..."
             docker compose build
-
             SERVICES="api worker frontend"
-
             for SERVICE in $SERVICES; do
               echo "Rolling update for: $SERVICE"
-
               OLD_CONTAINER=$(docker compose ps -q $SERVICE 2>/dev/null || true)
-
-              echo "Starting new $SERVICE container..."
               docker compose up -d --no-deps --scale ${SERVICE}=2 $SERVICE
-
-              echo "Waiting for new $SERVICE to pass health check (60s timeout)..."
               DEADLINE=$((SECONDS + 60))
               NEW_HEALTHY=false
-
               while [ $SECONDS -lt $DEADLINE ]; do
                 NEW_CONTAINER=$(docker compose ps -q $SERVICE | tail -1)
                 HEALTH=$(docker inspect --format='{{.State.Health.Status}}' $NEW_CONTAINER 2>/dev/null || echo "none")
@@ -371,22 +371,21 @@ jobs:
                 fi
                 sleep 5
               done
-
               if [ "$NEW_HEALTHY" = "false" ]; then
-                echo "New $SERVICE container failed health check. Aborting — old container left running."
+                echo "Health check failed — aborting, old container left running"
                 docker compose up -d --no-deps --scale ${SERVICE}=1 $SERVICE
                 exit 1
               fi
-
-              echo "New $SERVICE is healthy. Stopping old container..."
               if [ -n "$OLD_CONTAINER" ]; then
                 docker stop $OLD_CONTAINER
                 docker rm $OLD_CONTAINER
               fi
-
               docker compose up -d --no-deps --scale ${SERVICE}=1 $SERVICE
               echo "$SERVICE rolling update complete."
             done
-
             echo "All services deployed successfully."
             docker compose ps
+
+      - name: Deploy skipped
+        if: steps.check_secrets.outputs.skip == 'true'
+        run: echo "Deploy skipped — no server configured. Add DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_PORT and DEPLOY_PATH secrets to enable."
