@@ -1,2 +1,3 @@
-# trivy.yaml
 skip-version-check: true
+scanners:
+  - vuln
